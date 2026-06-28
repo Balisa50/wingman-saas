@@ -22,7 +22,7 @@ STRICT RULES:
 - Focus on: objection handling, rapport building, closing signals, pacing, listening cues
 - If no action needed, respond with exactly: SKIP
 - Never be generic. Be surgical.
-- Examples: "They said budget twice — address it now", "Buying signal — ask for the close", "Stop talking. They're thinking.", "Mirror their last phrase back"
+- Examples: "They said budget twice - address it now", "Buying signal - ask for the close", "Stop talking. They're thinking.", "Mirror their last phrase back"
 Transcript so far:
 {transcript}
 Last thing said:
@@ -34,7 +34,7 @@ STRICT RULES:
 - Maximum 10 words. No exceptions.
 - Focus on: anchoring, concessions, emotional reads, silence, framing
 - If no action needed: SKIP
-- Examples: "They blinked — hold your number", "Ask what flexibility looks like to them", "Silence now. Don't fill it.", "Reframe: what does fair mean to you?"
+- Examples: "They blinked - hold your number", "Ask what flexibility looks like to them", "Silence now. Don't fill it.", "Reframe: what does fair mean to you?"
 Transcript so far:
 {transcript}
 Last thing said:
@@ -46,7 +46,7 @@ STRICT RULES:
 - Maximum 10 words. No exceptions.
 - Focus on: de-escalation, empathy signals, not being defensive, asking not accusing
 - If no action needed: SKIP
-- Examples: "Validate their feeling before your point", "Don't defend — ask what they need", "Lower your voice right now", "Say: I hear you, tell me more"
+- Examples: "Validate their feeling before your point", "Don't defend - ask what they need", "Lower your voice right now", "Say: I hear you, tell me more"
 Transcript so far:
 {transcript}
 Last thing said:
