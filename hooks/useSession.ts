@@ -3,7 +3,6 @@ import { useSessionStore } from '../stores/sessionStore'
 import { AudioRecorder } from '../lib/audio'
 import { DeepgramStream } from '../lib/deepgram'
 import { getCoachingTip } from '../lib/claude'
-import { speakTip } from '../lib/elevenlabs'
 import { supabase } from '../lib/supabase'
 import { generateDebrief } from '../lib/claude'
 import { SessionMode } from '../types'
@@ -49,7 +48,6 @@ export function useSession() {
         if (tip) {
           coachingBuffer.current.push(tip)
           store.showTip(tip)
-          await speakTip(tip)
           setTimeout(() => store.hideTip(), 4000)
 
           await supabase.from('coaching_tips').insert({
