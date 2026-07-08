@@ -14,9 +14,11 @@ import * as Clipboard from 'expo-clipboard'
 import * as Haptics from 'expo-haptics'
 import { COLORS } from '../../constants/theme'
 import { CONTEXTS, VIBES, contextById, vibeById } from '../../constants/vibes'
-import { generateReplies } from '../../lib/replies'
+import { generateReplies, refineReply } from '../../lib/replies'
 import { useSavedStore } from '../../stores/savedStore'
 import { ReplyResult } from '../../types'
+
+const REFINE_DIRECTIONS = ['bolder', 'funnier', 'smoother'] as const
 
 export default function HomeScreen() {
   const [contextId, setContextId] = useState(CONTEXTS[0].id)
@@ -26,6 +28,7 @@ export default function HomeScreen() {
   const [result, setResult] = useState<ReplyResult | null>(null)
   const [error, setError] = useState<string | null>(null)
   const [copiedIdx, setCopiedIdx] = useState<number | null>(null)
+  const [refiningIdx, setRefiningIdx] = useState<number | null>(null)
 
   const { styleSample, hydrate, saveReply } = useSavedStore()
 
@@ -67,6 +70,28 @@ export default function HomeScreen() {
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light).catch(() => {})
     const ctx = contextById(contextId)
     await saveReply({ text, contextId: ctx.id, contextLabel: ctx.label, vibeId })
+  }
+
+  async function refine(original: string, direction: string, idx: number) {
+    if (refiningIdx !== null || loading) return
+    Haptics.selectionAsync().catch(() => {})
+    setRefiningIdx(idx)
+    setError(null)
+    try {
+      const res = await refineReply({
+        context: contextById(contextId),
+        original,
+        direction,
+        theirMessage: theirMessage.trim(),
+        styleSample,
+      })
+      setResult(res)
+      setCopiedIdx(null)
+    } catch {
+      setError('Could not rework that one — try again.')
+    } finally {
+      setRefiningIdx(null)
+    }
   }
 
   return (
@@ -189,6 +214,23 @@ export default function HomeScreen() {
                   >
                     <Text style={styles.saveBtnText}>Save</Text>
                   </TouchableOpacity>
+                </View>
+                <View style={styles.refineRow}>
+                  <Text style={styles.refineLabel}>make it</Text>
+                  {REFINE_DIRECTIONS.map((d) => (
+                    <TouchableOpacity
+                      key={d}
+                      style={[styles.refineChip, refiningIdx !== null && { opacity: 0.4 }]}
+                      disabled={refiningIdx !== null}
+                      onPress={() => refine(r.text, d, i)}
+                      activeOpacity={0.8}
+                    >
+                      <Text style={styles.refineChipText}>{d}</Text>
+                    </TouchableOpacity>
+                  ))}
+                  {refiningIdx === i && (
+                    <ActivityIndicator size="small" color={COLORS.primaryLight} />
+                  )}
                 </View>
               </View>
             ))}
@@ -313,6 +355,17 @@ const styles = StyleSheet.create({
     backgroundColor: COLORS.surfaceElevated,
   },
   saveBtnText: { color: COLORS.textSecondary, fontSize: 14, fontWeight: '700' },
+  refineRow: { flexDirection: 'row', alignItems: 'center', flexWrap: 'wrap', gap: 8 },
+  refineLabel: { fontSize: 12, color: COLORS.textMuted, fontWeight: '600' },
+  refineChip: {
+    paddingVertical: 6,
+    paddingHorizontal: 12,
+    borderRadius: 999,
+    borderWidth: 1,
+    borderColor: COLORS.border,
+    backgroundColor: COLORS.surfaceElevated,
+  },
+  refineChipText: { fontSize: 12.5, color: COLORS.primaryLight, fontWeight: '700' },
   hint: {
     fontSize: 13,
     color: COLORS.textMuted,
