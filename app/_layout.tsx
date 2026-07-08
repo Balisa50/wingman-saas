@@ -28,16 +28,8 @@ export default function RootLayout() {
         <Stack.Screen name="auth" />
         <Stack.Screen name="(tabs)" />
         <Stack.Screen
-          name="session/pre-session"
-          options={{ animation: 'slide_from_right' }}
-        />
-        <Stack.Screen
-          name="session/live"
-          options={{ animation: 'fade', gestureEnabled: false }}
-        />
-        <Stack.Screen
-          name="session/debrief"
-          options={{ animation: 'slide_from_bottom' }}
+          name="style"
+          options={{ presentation: 'modal', animation: 'slide_from_bottom' }}
         />
         <Stack.Screen
           name="paywall"

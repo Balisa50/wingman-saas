@@ -43,10 +43,10 @@ export default function SettingsScreen() {
       onPress: () => {},
     },
     {
-      icon: '🎙️',
-      title: 'Audio Settings',
-      subtitle: 'Mic and playback preferences',
-      onPress: () => {},
+      icon: '🎨',
+      title: 'Your style',
+      subtitle: 'Teach Wingman how you text',
+      onPress: () => router.push('/style'),
     },
     {
       icon: '🛡️',
