@@ -1,4 +1,7 @@
-import * as FileSystem from 'expo-file-system'
+// Newer expo-file-system moved the string/cache API to the /legacy submodule;
+// cacheDirectory + writeAsStringAsync + EncodingType live there. Without this the
+// spoken-tip playback throws at runtime (undefined cacheDirectory).
+import * as FileSystem from 'expo-file-system/legacy'
 import { Audio } from 'expo-av'
 
 export async function speakTip(text: string): Promise<void> {

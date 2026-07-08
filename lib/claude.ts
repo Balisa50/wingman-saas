@@ -1,5 +1,9 @@
+// Wingman's coaching brain. Named for its original Claude implementation; now
+// runs on NVIDIA's free endpoint (see lib/nvidia.ts). Public API is unchanged
+// so useCoaching / the debrief screen keep working as-is.
 import { SYSTEM_PROMPTS } from '../constants/prompts'
 import { SessionMode, TranscriptSegment } from '../types'
+import { nvidiaChat, extractJsonObject } from './nvidia'
 
 export async function getCoachingTip(
   mode: SessionMode,
@@ -15,26 +19,18 @@ export async function getCoachingTip(
     .replace('{lastSentence}', lastSentence)
 
   try {
-    const response = await fetch('https://api.anthropic.com/v1/messages', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'x-api-key': process.env.EXPO_PUBLIC_ANTHROPIC_API_KEY!,
-        'anthropic-version': '2023-06-01',
-      },
-      body: JSON.stringify({
-        model: 'claude-haiku-4-5-20251001',
-        max_tokens: 60,
-        messages: [{ role: 'user', content: prompt }],
-      }),
+    // Real-time: short timeout so a slow model never holds up the next tip.
+    const text = await nvidiaChat({
+      messages: [{ role: 'user', content: prompt }],
+      maxTokens: 60,
+      temperature: 0.5,
+      timeoutMs: 8000,
     })
-
-    const data = await response.json()
-    const tip = data.content?.[0]?.text?.trim()
-
-    if (!tip || tip === 'SKIP') return null
+    const tip = text.trim()
+    if (!tip || tip.toUpperCase() === 'SKIP') return null
     return tip
   } catch {
+    // A missed tip is fine - the conversation keeps moving. Never surface an error.
     return null
   }
 }
@@ -56,23 +52,15 @@ export async function generateDebrief(
     .replace('{tips}', tips.join(', '))
 
   try {
-    const response = await fetch('https://api.anthropic.com/v1/messages', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'x-api-key': process.env.EXPO_PUBLIC_ANTHROPIC_API_KEY!,
-        'anthropic-version': '2023-06-01',
-      },
-      body: JSON.stringify({
-        model: 'claude-sonnet-4-20250514',
-        max_tokens: 1000,
-        messages: [{ role: 'user', content: prompt }],
-      }),
+    const text = await nvidiaChat({
+      messages: [{ role: 'user', content: prompt }],
+      maxTokens: 1000,
+      temperature: 0.4,
+      timeoutMs: 30000,
     })
-
-    const data = await response.json()
-    const text = data.content?.[0]?.text?.trim()
-    return JSON.parse(text)
+    // Robust parse: models often wrap JSON in prose or ```json fences. A raw
+    // JSON.parse threw and killed the whole debrief; extract the object first.
+    return JSON.parse(extractJsonObject(text))
   } catch {
     return null
   }
